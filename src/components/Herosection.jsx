@@ -1,70 +1,128 @@
 "use client"; // If you're using Next.js with server components
-import React, { useEffect, useState } from "react";
+import React, { useRef, useEffect } from "react";
+import { gsap } from "gsap";
 import { BackgroundBeams } from "./BackgroundBeams";
-import { motion } from "framer-motion";
-
-const slokas = [
-  [
-    "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन",
-    "मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि ||", // Gita 2.47
-  ],
-  [
-    "यदा यदा हि धर्मस्य ग्लानिर्भवति भारत",
-    "अभ्युत्थानमधर्मस्य तदात्मानं सृजाम्यहम् ||", // Gita 4.7
-  ],
-  [
-    "वासांसी जिर्णानी यथा विहाय नवानि गृह्णाति नरोऽपराणि",
-    "तथा शरीराणि विहाय जिर्णान्यन्यानि संयाति नवानी देही ||", // Gita 2.22
-  ],
-  [
-    "दिवि सूर्यमणि चक्रे यत्र पतति नान्यत:",
-    "यज्ञे हि नाम कर्माणि सर्वे शिवे करिष्यति ||", // Gita 3.16
-  ],
-];
-
-const getCurrentSloka = () => {
-  const lastUpdated = localStorage.getItem("lastUpdated");
-  const currentTime = new Date().getTime();
-
-  if (!lastUpdated || currentTime - lastUpdated > 24 * 60 * 60 * 1000) {
-    const randomSloka = slokas[Math.floor(Math.random() * slokas.length)];
-    localStorage.setItem("currentSloka", JSON.stringify(randomSloka));
-    localStorage.setItem("lastUpdated", currentTime);
-    return randomSloka;
-  }
-
-  return JSON.parse(localStorage.getItem("currentSloka")) || slokas[0];
-};
+import LandingPhoto from "../assets/landingpage.png";
 
 export const HeroSection = () => {
-  const [sloka, setSloka] = useState(["", ""]);
-  const [lineIndex, setLineIndex] = useState(0);
+  const sectionRef = useRef(null);
+  const lettersRef = useRef([]);
+  const circleRef = useRef(null);
+  const imageRef = useRef(null);
 
   useEffect(() => {
-    setSloka(getCurrentSloka());
+    const timeline = gsap.timeline();
 
-    const timers = [];
-    timers.push(
-      setTimeout(() => {
-        setLineIndex(1);
-      }, 2000) // Wait 2 seconds for the first line
+    // Animate the middle 'A' first
+    timeline.fromTo(
+      lettersRef.current[4], // Ref for the middle letter 'A'
+      { scale: 3, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 1, ease: "power2.out" }
     );
 
-    timers.push(
-      setTimeout(() => {
-        setLineIndex(2);
-      }, 4000) // Wait 2 more seconds for the second line
+    // Fade in other letters sequentially
+    lettersRef.current.forEach((letter, index) => {
+      if (index !== 4) {
+        timeline.fromTo(
+          letter,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.5, ease: "power2.out" },
+          "-=0.3" // Slight overlap with previous animation
+        );
+      }
+    });
+
+    // Reduce opacity to 30 for all letters after animation
+    timeline.to(lettersRef.current, {
+      opacity: 0.2,
+      duration: 0.5,
+      ease: "power2.inOut",
+    });
+
+    // Add a bouncing circle from the top
+    timeline.fromTo(
+      circleRef.current,
+      { y: "-100%", scale: 0, opacity: 0 },
+      {
+        y: "0%",
+        scale: 1,
+        opacity: 1,
+        duration: 1.5,
+        ease: "bounce.out",
+      }
     );
 
-    return () => timers.forEach(clearTimeout);
+    // Add fade-in animation for the image
+    timeline.fromTo(
+      imageRef.current,
+      { opacity: 0, scale: 0 },
+      {
+        opacity: 1,
+        scale: 1,
+        duration: 1,
+        ease: "power2.out",
+      },
+      "-=0.8" // Overlap with the circle animation
+    );
   }, []);
+
+  const text = "PRANAFLOW";
 
   return (
     <div className="relative w-full h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 overflow-hidden">
       {/* Background Beams */}
       <BackgroundBeams className="opacity-30 absolute inset-0" />
 
-   
+      <div className="relative mt-10 text-center">
+        <h1
+          ref={sectionRef}
+          className="text-[200px] font-black tracking-tight uppercase"
+          style={{
+            WebkitTextStroke: "2px black", // Black stroke around text
+            WebkitTextFillColor: "white", // Fills the text with white
+          }}
+        >
+          {text.split("").map((letter, index) => (
+            <span
+              key={index}
+              ref={(el) => (lettersRef.current[index] = el)}
+              style={{
+                display: "inline-block",
+                WebkitTextFillColor: letter === "A" ? "lightgray" : "white",
+              }}
+            >
+              {letter}
+            </span>
+          ))}
+        </h1>
+        <p className="text-2xl tracking-widest font-light text-gray-600 mt-24">
+          संस्कारः सेतुं साधनं प्रगतेः
+        </p>
+
+        {/* Circle Element */}
+        <div
+          ref={circleRef}
+          className="absolute w-[356px] h-[356px] rounded-full bg-[#073B4C] opacity-0"
+          style={{
+            transform: "translate(-50%, -50%)",
+            top: "50%",
+            left: "50%",
+          }}
+        ></div>
+
+        {/* Image Element */}
+        <img
+          ref={imageRef}
+          src={LandingPhoto}
+          alt="Landing Page"
+          className="absolute w-[356px] h-[356px] rounded-full"
+          style={{
+            transform: "translate(-50%, -50%)",
+            top: "50%",
+            left: "50%",
+          }}
+        />
+      </div>
     </div>
   );
 };
