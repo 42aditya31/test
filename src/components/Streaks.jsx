@@ -10,22 +10,71 @@ const Streaks = () => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow grid grid-cols-2 gap-4">
-      <div>
-        <p>Habits</p>
-        <h2 className="text-xl font-bold">{streaks.habits}</h2>
+    <div className="bg-white py-6 px-4 rounded-lg grid grid-cols-2 sm:grid-cols-4 gap-4">
+      {/* Current Streak */}
+      <div className="streak-card">
+        <h2 className="text-3xl font-bold">{streaks.currentStreak}</h2>
+        <p className="text-sm font-medium mt-2">Current Streak</p>
       </div>
-      <div>
-        <p>Meditation Minutes</p>
-        <h2 className="text-xl font-bold">{streaks.meditationMinutes}</h2>
+
+      {/* Habits */}
+      <div className="streak-card">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={2}
+          stroke="currentColor"
+          className="w-8 h-8 mb-2"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M3 10h11M9 21V3m7 7h4m-2 0v7"
+          />
+        </svg>
+        <h2 className="text-2xl font-bold">{streaks.habits}</h2>
+        <p className="text-sm font-medium mt-1">Habits</p>
       </div>
-      <div>
-        <p>Longest Streak</p>
-        <h2 className="text-xl font-bold">{streaks.longestStreak} Days</h2>
+
+      {/* Meditation Minutes */}
+      <div className="streak-card">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={2}
+          stroke="currentColor"
+          className="w-8 h-8 mb-2"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 6v6h6m-6-6H6m6 0h6M6 12h6"
+          />
+        </svg>
+        <h2 className="text-2xl font-bold">{streaks.meditationMinutes}</h2>
+        <p className="text-sm font-medium mt-1">Minutes Meditation</p>
       </div>
-      <div>
-        <p>Current Streak</p>
-        <h2 className="text-xl font-bold">{streaks.currentStreak}</h2>
+
+      {/* Longest Streak */}
+      <div className="streak-card">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={2}
+          stroke="currentColor"
+          className="w-8 h-8 mb-2"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M5.121 19.071a7 7 0 1 1 13.757 0M8 11h8m-8 4h8"
+          />
+        </svg>
+        <h2 className="text-2xl font-bold">{streaks.longestStreak}</h2>
+        <p className="text-sm font-medium mt-1">Days Streak</p>
       </div>
     </div>
   );
