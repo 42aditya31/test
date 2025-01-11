@@ -23,18 +23,18 @@ const Dashboard = () => {
       <div className="w-full md:w-2/3 p-6 space-y-6">
         <ProfileIntro name={user.name} score={user.score} />
         {/* <Graph totalPoints={user.totalPoints} /> */}
-        <Streaks
+        {/* <Streaks
           habits={user.habits}
           meditationMinutes={user.meditationMinutes}
           longestStreak={user.longestStreak}
           currentStreak={user.currentStreak}
-        />
+        /> */}
       </div>
       {/* Right Panel */}
-      <div className="w-full md:w-1/3 p-6 bg-blue-900 text-white">
+      {/* <div className="w-full md:w-1/3 p-6 bg-blue-900 text-white">
         <Calendar />
         <Schedule />
-      </div>
+      </div> */}
     </div>
   );
 };

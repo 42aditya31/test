@@ -7,9 +7,9 @@ const App = () => {
   return (
     <div>
       <>
-      <HeroSection/>
+      {/* <HeroSection/> */}
       <Dashboard/>
-    <TypewriterEffectDemo/>
+    {/* <TypewriterEffectDemo/> */}
       </>
     </div>
   )
