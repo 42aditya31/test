@@ -1,21 +1,43 @@
-// components/Schedule.jsx
 import React from "react";
 
-const Schedule = () => {
-  const schedule = [
-    { time: "5:00 AM - 5:30 AM", activity: "Meditation" },
-    { time: "6:00 AM - 6:30 AM", activity: "Exercise" },
+const Schedule = ({ scheduleData }) => {
+  const defaultSchedule = [
+    {
+      time: "8:00 AM",
+      title: "Meditation",
+      color: "#F94144",
+    },
+    {
+      time: "9:00 AM",
+      title: "Exercise",
+      color: "#43AA8B",
+    },
   ];
 
+  const events = scheduleData || defaultSchedule;
+
   return (
-    <div className="mt-4">
-      <h2 className="text-lg font-bold mb-2">Schedule</h2>
-      {schedule.map((item, index) => (
-        <div key={index} className="bg-blue-800 p-2 rounded-lg mb-2">
-          <p>{item.time}</p>
-          <h4>{item.activity}</h4>
-        </div>
-      ))}
+    <div className="bg-[#06D6A0] text-[#073B4C] p-4 rounded-lg w-full">
+      <h2 className="text-lg font-bold mb-4">Schedule</h2>
+      {events.map((event, index) => {
+        // Validate event and its properties
+        const eventTitle = event?.title || "No Title"; // Default to "No Title" if undefined
+        const eventTime = event?.time || "Time Unavailable";
+        const eventColor = event?.color || "#cccccc";
+
+        return (
+          <div
+            key={index}
+            className="flex items-center mb-4"
+            style={{ borderLeft: `4px solid ${eventColor}` }}
+          >
+            <div className="flex flex-col pl-4">
+              <p className="font-medium text-sm">{eventTime}</p>
+              <p className="text-md font-bold">{eventTitle}</p>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 };

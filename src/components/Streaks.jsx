@@ -6,7 +6,7 @@ const Streaks = () => {
     habits: 10,
     meditationMinutes: 300,
     longestStreak: 75,
-    currentStreak: "90%",
+    currentStreak: 90,
   };
 
   return (
