@@ -16,7 +16,8 @@
     "react-calendar": "^5.1.0",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^18.3.1",
-    "react-simple-typewriter": "^5.0.1"
+    "react-simple-typewriter": "^5.0.1",
+    "recharts": "^2.15.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

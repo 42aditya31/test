@@ -18,11 +18,11 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
+    <div className="flex flex-col md:flex-row h-auto bg-white">
       {/* Left Panel */}
       <div className="w-full md:w-2/3 p-6 space-y-6">
         <ProfileIntro name={user.name} score={user.score} />
-        {/* <Graph totalPoints={user.totalPoints} /> */}
+        <Graph totalPoints={user.totalPoints} />
         {/* <Streaks
           habits={user.habits}
           meditationMinutes={user.meditationMinutes}
