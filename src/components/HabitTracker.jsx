@@ -1,16 +1,14 @@
 import React, { useState } from "react";
-import Schedule from "./Schedule";
+import { useHabits } from "../HabitContext";
 
 const HabitTracker = () => {
   const [habits, setHabits] = useState([]);
   const [form, setForm] = useState({
     title: "",
-    time: "",
     days: "",
   });
   const [isAdding, setIsAdding] = useState(false);
 
-  // Handle input change in the form
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prevForm) => ({
@@ -19,9 +17,8 @@ const HabitTracker = () => {
     }));
   };
 
-  // Add a new habit
   const addHabit = () => {
-    if (!form.title || !form.time || !form.days) {
+    if (!form.title || !form.days) {
       alert("Please fill in all fields");
       return;
     }
@@ -30,32 +27,55 @@ const HabitTracker = () => {
       {
         id: Date.now(),
         title: form.title,
-        time: form.time,
         days: parseInt(form.days),
-        completed: false,
-        streak: 0,
+        completedDates: [],
       },
     ]);
-    setForm({ title: "", time: "", days: "" });
-    setIsAdding(false); // Close the form
+    setForm({ title: "", days: "" });
+    setIsAdding(false);
   };
 
-  // Mark habit as completed
+  const calculateStreak = (completedDates) => {
+    if (!completedDates.length) return 0;
+
+    const today = new Date().toISOString().split("T")[0];
+    const sortedDates = [...completedDates].sort();
+    let streak = 0;
+
+    for (let i = sortedDates.length - 1; i >= 0; i--) {
+      const date = sortedDates[i];
+      const previousDate = new Date(date);
+      const difference = (new Date(today) - previousDate) / (1000 * 60 * 60 * 24);
+
+      if (difference === streak) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+
+    return streak;
+  };
+
   const toggleComplete = (id) => {
+    const today = new Date().toISOString().split("T")[0];
+
     setHabits((prevHabits) =>
-      prevHabits.map((habit) =>
-        habit.id === id
-          ? {
-              ...habit,
-              completed: !habit.completed,
-              streak: habit.completed ? habit.streak - 1 : habit.streak + 1,
-            }
-          : habit
-      )
+      prevHabits.map((habit) => {
+        if (habit.id === id) {
+          const isAlreadyCompleted = habit.completedDates.includes(today);
+          return {
+            ...habit,
+            completedDates: isAlreadyCompleted
+              ? habit.completedDates.filter((date) => date !== today)
+              : [...habit.completedDates, today],
+          };
+        }
+        return habit;
+      })
     );
   };
 
-  // Edit a habit
   const editHabit = (id, newTitle) => {
     setHabits((prevHabits) =>
       prevHabits.map((habit) =>
@@ -64,43 +84,29 @@ const HabitTracker = () => {
     );
   };
 
-  // Delete a habit
   const deleteHabit = (id) => {
     setHabits((prevHabits) => prevHabits.filter((habit) => habit.id !== id));
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-lg">
-      <h1 className="text-xl font-bold mb-4">Habit Tracker</h1>
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+        Habit Tracker
+      </h1>
 
-      {/* Add Habit Button */}
-      {!isAdding && (
-        <button
-          onClick={() => setIsAdding(true)}
-          className="bg-[#06D6A0] text-white px-4 py-2 rounded-md hover:bg-[#05C38A] transition"
-        >
-          Add New Habit
-        </button>
-      )}
-
-      {/* Form for Adding Habit */}
-      {isAdding && (
-        <div className="bg-gray-100 p-4 rounded-lg mt-4 space-y-4">
+      {/* Add Habit Form */}
+      {isAdding ? (
+        <div className="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto">
+          <h2 className="text-lg font-semibold mb-4 text-center">
+            Add a New Habit
+          </h2>
           <input
             type="text"
             name="title"
             placeholder="Habit Title"
             value={form.title}
             onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-md"
-          />
-          <input
-            type="time"
-            name="time"
-            placeholder="Comfort Time"
-            value={form.time}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-md"
+            className="w-full px-4 py-2 border rounded-md mb-4 focus:ring focus:ring-green-200"
           />
           <input
             type="number"
@@ -108,96 +114,118 @@ const HabitTracker = () => {
             placeholder="Number of Days"
             value={form.days}
             onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-md"
+            className="w-full px-4 py-2 border rounded-md mb-4 focus:ring focus:ring-green-200"
           />
           <div className="flex justify-end space-x-4">
             <button
               onClick={() => setIsAdding(false)}
-              className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition"
+              className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500"
             >
               Cancel
             </button>
             <button
               onClick={addHabit}
-              className="bg-[#06D6A0] text-white px-4 py-2 rounded-md hover:bg-[#05C38A] transition"
+              className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
             >
-              Save Habit
+              Add Habit
             </button>
           </div>
         </div>
+      ) : (
+        <button
+          onClick={() => setIsAdding(true)}
+          className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition block mx-auto"
+        >
+          Add New Habit
+        </button>
       )}
 
-      {/* Habit List */}
-      <div className="space-y-4 mt-6">
-        {habits.length === 0 && !isAdding && (
-          <p className="text-gray-500">No habits added yet.</p>
-        )}
-
-        {habits.map((habit) => (
-          <div
-            key={habit.id}
-            className="flex justify-between items-center p-4 bg-[#F4F4F4] rounded-md shadow"
-          >
-            <div className="flex items-center space-x-4">
-              <input
-                type="checkbox"
-                checked={habit.completed}
-                onChange={() => toggleComplete(habit.id)}
-                className="w-5 h-5"
-              />
-              <div>
-                <p
-                  className={`text-md ${
-                    habit.completed
-                      ? "line-through text-gray-500"
-                      : "text-black"
-                  }`}
-                >
+      {/* Habits List */}
+      <div className="mt-6 space-y-4">
+        {habits.length === 0 && !isAdding ? (
+          <p className="text-gray-500 text-center">
+            No habits added yet. Start tracking now!
+          </p>
+        ) : (
+          habits.map((habit) => (
+            <div
+              key={habit.id}
+              className="flex flex-col md:flex-row justify-between items-center p-4 bg-white rounded-lg shadow-md"
+            >
+              <div className="flex-grow">
+                <p className="text-lg font-medium text-gray-800">
                   {habit.title}
                 </p>
                 <p className="text-sm text-gray-600">
-                  Time: {habit.time} | Days: {habit.days}
+                  Target: {habit.days} days | Streak:{" "}
+                  <span
+                    className={`font-semibold ${
+                      calculateStreak(habit.completedDates) > 0
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }`}
+                  >
+                    {calculateStreak(habit.completedDates)} days
+                  </span>
                 </p>
+                {/* Progress Bar */}
+                <div className="w-full bg-gray-200 rounded-md h-4 mt-2">
+                  <div
+                    className="bg-green-500 h-4 rounded-md"
+                    style={{
+                      width: `${
+                        (calculateStreak(habit.completedDates) / habit.days) *
+                        100
+                      }%`,
+                    }}
+                  ></div>
+                </div>
+              </div>
+              <div className="flex items-center space-x-4 mt-4 md:mt-0">
+                <input
+                  type="checkbox"
+                  checked={habit.completedDates.includes(
+                    new Date().toISOString().split("T")[0]
+                  )}
+                  onChange={() => toggleComplete(habit.id)}
+                  className="w-5 h-5"
+                />
+                <button
+                  onClick={() => {
+                    const newTitle = prompt("Edit Habit", habit.title);
+                    if (newTitle) editHabit(habit.id, newTitle);
+                  }}
+                  className="text-blue-500 hover:underline"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => deleteHabit(habit.id)}
+                  className="text-red-500 hover:underline"
+                >
+                  Delete
+                </button>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              {/* Streak Display */}
-              <span className="text-sm text-gray-600">
-                Streak: {habit.streak} days
-              </span>
-
-              {/* Edit Button */}
-              <button
-                onClick={() => {
-                  const newTitle = prompt("Edit Habit", habit.title);
-                  if (newTitle) editHabit(habit.id, newTitle);
-                }}
-                className="text-blue-500 hover:underline"
-              >
-                Edit
-              </button>
-
-              {/* Delete Button */}
-              <button
-                onClick={() => deleteHabit(habit.id)}
-                className="text-red-500 hover:underline"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
-      {/* Schedule Component */}
-      <div className="mt-8">
-        <Schedule
-          scheduleData={habits.map((habit) => ({
-            time: habit.time || "Anytime",
-            title: habit.title,
-            color: habit.completed ? "#06D6A0" : "#F94144",
-          }))}
-        />
+      {/* Weekly Challenges */}
+      <div className="mt-10 bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          Weekly Challenges
+        </h2>
+        <p className="text-gray-600">
+          Complete 5 habits in a week to unlock a special badge!
+        </p>
+        <p className="text-green-500 font-bold mt-2">
+          Progress:{" "}
+          {habits.filter((habit) =>
+            habit.completedDates.includes(new Date().toISOString().split("T")[0])
+          ).length}{" "}
+          / 5 habits completed this week
+        </p>
       </div>
     </div>
   );
